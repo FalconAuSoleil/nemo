@@ -18,7 +18,7 @@ Built for the **Nebius x NVIDIA Global AI Hackathon** (track: Best Apps and Agen
 | Voice: streaming text-to-speech | **NVIDIA Magpie TTS Multilingual** NIM | **Nebius AI Cloud** (same VM) |
 | Real-time web intelligence: fact checks, market data, competitors | **Tavily** Search API | Tavily |
 
-All LLM calls go through Token Factory's OpenAI-compatible API. Thinking is switched off on the voice path with `chat_template_kwargs.enable_thinking=false`, and structured decisions use named tool calls. See [`infra/README.md`](infra/README.md) to deploy the speech NIMs on a Nebius GPU VM.
+All LLM calls go through Token Factory's chat-completions API. Thinking is switched off on the voice path with `chat_template_kwargs.enable_thinking=false`, and structured decisions use named tool calls. See [`infra/README.md`](infra/README.md) to deploy the speech NIMs on a Nebius GPU VM.
 
 ## What it does
 
@@ -98,17 +98,17 @@ npm start                   # http://localhost:8787
 docker build -t nemo . && docker run -p 8787:8787 --env-file .env nemo
 ```
 
-### Providers (hexagonal adapters)
+### NVIDIA models in use (hexagonal adapters)
 
-You pick each port independently in `.env`:
+Each port is configured independently in `.env`, and each one runs on an NVIDIA model:
 
-| Port | NVIDIA (default, required for the hackathon) | OpenAI alternative | Fallback |
+| Port | NVIDIA model | Setting | Fallback |
 |---|---|---|---|
-| Brain `LLM_PROVIDER` | `nebius`: Nemotron 3.5 Lightning + Nemotron 3 Super on Token Factory | `openai`: `gpt-6-luna` for both tiers, Chat Completions with reasoning `none` so tool calls work | `offline` |
-| Ears `STT_PROVIDER` | `nim`: Nemotron ASR Streaming NIM | `openai`: Realtime API `gpt-live-transcribe` (24 kHz PCM, local pause detection) | `browser` |
-| Voice `TTS_PROVIDER` | `nim`: Magpie TTS NIM | `openai`: `gpt-4o-mini-tts`, voice `marin`, streamed PCM | `browser` |
+| Brain | Nemotron 3.5 Lightning + Nemotron 3 Super on Nebius Token Factory | `LLM_PROVIDER=nebius` | `offline` |
+| Ears | Nemotron ASR Streaming NIM | `STT_PROVIDER=nim` | `browser` |
+| Voice | Magpie TTS Multilingual NIM | `TTS_PROVIDER=nim` | `browser` |
 
-For example, to run everything on OpenAI: `LLM_PROVIDER=openai STT_PROVIDER=openai TTS_PROVIDER=openai OPENAI_API_KEY=sk-...`. The adapter drops any parameter a model rejects (HTTP 400) and remembers it. `npm run check` tests whatever is selected.
+The chat adapter drops any parameter a model rejects (HTTP 400) and remembers it. `npm run check` tests whatever is selected.
 
 ### Modes
 
@@ -138,7 +138,7 @@ npm test
 The tests cover:
 - the domain (canvas, wake word, budget, phases and methods);
 - the full room pipeline with offline adapters (ideas, commands, parallel research, sub-agents);
-- every real adapter against protocol mocks: OpenAI-compatible Token Factory (including the 400 fallbacks), the NIM realtime ASR WebSocket, Magpie chunked PCM, and Tavily.
+- every real adapter against protocol mocks: Nemotron on Token Factory (including the 400 fallbacks), the NIM realtime ASR WebSocket, Magpie chunked PCM, and Tavily.
 
 ## Project layout
 
