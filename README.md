@@ -98,18 +98,6 @@ npm start                   # http://localhost:8787
 docker build -t nemo . && docker run -p 8787:8787 --env-file .env nemo
 ```
 
-### NVIDIA models in use (hexagonal adapters)
-
-Each port is configured independently in `.env`, and each one runs on an NVIDIA model:
-
-| Port | NVIDIA model | Setting | Fallback |
-|---|---|---|---|
-| Brain | Nemotron 3.5 Lightning + Nemotron 3 Super on Nebius Token Factory | `LLM_PROVIDER=nebius` | `offline` |
-| Ears | Nemotron ASR Streaming NIM | `STT_PROVIDER=nim` | `browser` |
-| Voice | Magpie TTS Multilingual NIM | `TTS_PROVIDER=nim` | `browser` |
-
-The chat adapter drops any parameter a model rejects (HTTP 400) and remembers it. `npm run check` tests whatever is selected.
-
 ### Modes
 
 | What you configure | Speech | Voice | Brain | Web |
