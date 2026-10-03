@@ -6,6 +6,8 @@ Nobody touches the canvas: **Nemo is the only one who edits it**. People steer i
 
 Built for the **Nebius x NVIDIA Global AI Hackathon** (track: Best Apps and Agents).
 
+### 3min video: https://youtu.be/PuRhZA92lrk
+
 ---
 
 ## Voice commands (examples)
