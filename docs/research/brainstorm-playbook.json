@@ -1,0 +1,48 @@
+{
+ "global": {
+  "voice": {"max_words": 15, "unsolicited_min_gap_s": 90, "speak_after_pause_s": 1.5, "default": "silent", "prefer_popup_for": ["research","suggestions"], "ack": "Got it, #{n}."},
+  "ai_ideas": {"hold_until": {"cards": 8, "or_minutes": 4}, "max_batch": 3, "target": "empty_or_low_density_clusters", "label": "AI"},
+  "card_kinds": {"human_idea": "yellow", "ai_idea": "blue-light", "fact_sourced": "blue", "risk": "pink", "wild": "pink-light", "question": "white", "decision_vote": "yellow-strong"},
+  "repair": ["My bad, ignore that.", "Did I get #{n} right?", "Fair, dropping it."],
+  "override": "explicit human voice command always wins",
+  "metrics": ["idea_rate", "novelty", "cluster_count", "cluster_balance", "coverage_gaps", "silence_s", "q_ratio", "consensus_lex", "negativity", "why_chain", "fact_claims", "elapsed_phase"]
+ },
+ "states": {
+  "FRAME":    {"timebox_min": 5,  "methods": ["HMW", "5_whys"], "exit": "HMW locked by voice", "next": "DIVERGE"},
+  "DIVERGE":  {"timebox_min": 12, "methods": ["round_robin", "oral_brainwriting", "mind_map"], "unblock": ["worst_idea", "reverse", "analogies", "scamper"], "judgment": "park concerns as risk cards in Parking lot", "exit": "cards>=20 AND (idea_rate<1 for 2min OR timebox)", "next": "CLUSTER"},
+  "CLUSTER":  {"timebox_min": 4,  "methods": ["affinity_kj"], "exit": "clusters named, orphans<10%", "next": "DEEPEN"},
+  "DEEPEN":   {"timebox_min": 8,  "methods": ["starbursting", "first_principles", "six_hats_white", "tavily", "parallel_explore"], "exit": "key questions answered or tagged assumption", "next": "CHALLENGE"},
+  "CHALLENGE": {"timebox_min": 6, "methods": ["premortem", "six_hats_black", "disney_critic", "steelman"], "rules": {"max_per_3min": 1, "max_per_idea": 2, "form": "question"}, "exit": "top risks have mitigation", "next": "CONVERGE"},
+  "CONVERGE": {"timebox_min": 6,  "methods": ["dot_voting_voice", "impact_effort", "consent_check"], "exit": "top3 + voice go", "next": "WRAPUP"},
+  "WRAPUP":   {"timebox_min": 3,  "output": ["hmw", "top3", "clusters", "risks", "assumptions", "open_tensions", "next_steps", "sources"]}
+ },
+ "transition_rule": "propose; yes or 5s no objection = go; 'not yet' = +3min (max 2)",
+ "methods": {
+  "HMW": {"trigger": "session start OR debate about the problem", "steps": ["What problem are we solving today?", "Three framings on screen. Which fits?", "Too broad? Too narrow?", "Locked: How might we ...?"], "canvas": "top banner + 2-3 grey alternatives + constraints zone", "exit": "voice validation or 5min"},
+  "mind_map": {"trigger": "broad topic, associative flow", "steps": ["Mapping around the HMW. Shout branches.", "Branch {k} is thin. Anything there?"], "canvas": "radial, color per branch", "exit": ">=4 branches x3 nodes"},
+  "affinity_kj": {"trigger": ">=20 ungrouped cards OR end of diverge", "steps": ["I grouped {n} cards into {k} themes. Check them?", "Anything misplaced? Say 'move 7 to B'.", "Name for cluster {X}?"], "canvas": "colored zones, bold titles, Unsorted zone, stacked duplicates", "exit": "orphans<10%, titles accepted"},
+  "scamper": {"trigger": "voice request OR one idea dominates builds OR novelty<0.25", "steps": ["SCAMPER on #{n}. Seven quick lenses.", "Substitute: what could we swap?", "Combine it with another card?", "Adapt: who solved this elsewhere?", "Magnify or shrink it?", "Put it to another use?", "Eliminate one part?", "Reverse or reorder it?"], "per_letter_s": 60, "skip_after_s": 45, "canvas": "target card centered, 7 labeled sectors", "exit": "7 letters or >=8 variants"},
+  "six_hats": {"trigger": "polarized debate OR candidate to examine", "steps": ["Everyone wears the same hat. White: facts only.", "Red: gut feelings.", "Black: risks.", "Yellow: benefits.", "Green: new options.", "Blue: so, what do we decide?"], "per_hat_min": 2, "canvas": "6 columns, auto-sort to active hat", "exit": "blue column holds a decision", "background_mode": "silent checklist, popup when a hat is empty"},
+  "reverse": {"trigger": "idea_rate<1/min for 3min OR premature politeness", "steps": ["Flip it: how do we guarantee failure?", "Which are we already doing?", "Invert the top three into fixes."], "canvas": "fail column | inversions linked", "exit": ">=3 inversions"},
+  "5_whys": {"trigger": "why_chain high OR symptom-fixing", "steps": ["Why does {problem} happen?", "Why is that?", "That feels like a root cause. Agree?"], "canvas": "vertical chain, root highlighted", "exit": "root validated -> maybe reframe HMW"},
+  "oral_brainwriting": {"trigger": "overlaps OR group>4 OR few speakers", "steps": ["Silent round. Grab paper. Three ideas, three minutes.", "Time. Pick your best two.", "Read your top two, one by one."], "canvas": "round column, burst cards, dedupe stack", "exit": "everyone read"},
+  "starbursting": {"trigger": "fuzzy idea OR q_ratio>0.6", "steps": ["Questions only, no answers. Who uses #{n}?", "What? Where? When? Why? How?", "Which questions can I research now?"], "canvas": "6-point star, questions, sourced answers", "exit": ">=2 questions per branch"},
+  "round_robin": {"trigger": "silent members 5min", "steps": ["Quick round. One idea each, pass allowed."], "canvas": "standard", "exit": "1-2 full rounds"},
+  "worst_idea": {"trigger": "silence>30s OR cautious tone OR warm-up", "steps": ["Let's go terrible. Worst idea for our HMW?", "What's secretly good in #{w}?"], "canvas": "Worst zone, pivots linked", "exit": ">=1 pivot"},
+  "analogies": {"trigger": "novelty<0.25 OR one cluster>50% OR 'inspire us'", "steps": ["How would nature solve this?", "How would {other domain} do it?"], "ai_output": "questions not solutions", "canvas": "analogy sources, inspired-by ideas", "exit": ">=2 transferred ideas"},
+  "first_principles": {"trigger": "'everyone does it this way' OR fixed constraints", "steps": ["What do we know is truly true?", "Which are just assumptions?", "From the truths only, what's possible?"], "canvas": "Facts | Assumptions | Rebuilt ideas", "exit": ">=1 assumption broken"},
+  "premortem": {"trigger": "1-3 candidates OR fast consensus_lex", "steps": ["It's one year later. #{n} failed. Why?", "Top three causes?", "One mitigation each?"], "canvas": "FAILED banner, reasons, mitigations", "exit": "top3 risks mitigated or accepted"},
+  "dot_voting_voice": {"trigger": ">=8 clustered ideas OR consensus_lex>=2 OR timebox", "steps": ["Voting time. Three votes each.", "Say 'vote 4, 9, 12'.", "Top five: ..."], "canvas": "vote dots with counters", "exit": "top5 ranked", "rule": "never reveal AI ranking before human vote"},
+  "impact_effort": {"trigger": "after dot voting", "steps": ["#{n}: high impact? Low effort?", "Say 'move 9 right' to adjust."], "canvas": "2x2 quick wins / big bets / fill-ins / money pits", "exit": "top3 placed + voice go"},
+  "disney": {"trigger": "single concept to develop OR dreamers vs critics", "steps": ["Dreamer: no limits. Dream version?", "Realist: what would it take?", "Critic, kindly: what's weak?"], "per_role_min": 4, "canvas": "3 columns", "exit": "refined concept + next steps"},
+  "lotus": {"trigger": "systematic coverage wanted, time>=15min", "steps": ["Eight themes around the HMW. Go.", "Pick two themes to bloom.", "Eight ideas for {theme}."], "canvas": "3x3 grid + satellites", "exit": "8 themes + >=2 bloomed"}
+ },
+ "challenge_rules": {"phases": ["CHALLENGE", "CONVERGE"], "diverge_behavior": "park as risk card: 'Parking that concern. Idea first?'", "order": ["steelman", "question", "path forward"], "examples": ["What are we assuming must be true for #{n}?", "Devil's advocate: what if nobody pays?", "We agreed in two minutes. What are we missing?", "So what would make #{n} survive that?"]},
+ "blind_spots": {
+  "dimensions": ["users", "value", "cost", "tech_feasibility", "legal", "competition", "ethics", "scalability", "distribution", "data", "time"],
+  "research_triggers": ["unsourced numeric claim", "competitor/market mention", "idea enters top5 -> competition search", "personal data/health/audio recording/IP", "tech capability question"],
+  "diverge_policy": "queue results, show in DEEPEN unless major invalidation",
+  "prompt_when": ">=3 empty dimensions after 10min OR entering DEEPEN (1 voice prompt max)"
+ },
+ "_sources": "Diehl&Stroebe 1987; IDEO 7 rules; Wadinambiarachchi CHI24 (AI fixation); Doshi&Hauser SciAdv24; Lee CHI25 LBW (devil's advocate); Alsobay 2025 arXiv 2508.08242; Do CSCW23 (repair); Liu CHI25 Inner Thoughts. Numeric thresholds are design heuristics, calibrate in testing."
+}

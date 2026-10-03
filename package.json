@@ -1,0 +1,25 @@
+{
+  "name": "nemo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Nemo \u2014 a voice-first AI brainstorming facilitator that listens to the room and builds the canvas (NVIDIA Nemotron + Nebius + Tavily)",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client && npm run build -w server",
+    "start": "npm run build -w client && npm run start -w server",
+    "test": "npm run test -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w client",
+    "check": "npm run check -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.0"
+  }
+}

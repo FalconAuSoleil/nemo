@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #3b5bfd;
+  --color-brand-soft: #e4e9ff;
+  --color-pink: #ff7ab6;
+  --color-pink-soft: #ffe3f0;
+  --color-sun: #ffd43b;
+  --color-sun-soft: #fff4c7;
+  --color-mint: #4fd1a5;
+  --color-mint-soft: #dcf7ec;
+  --color-lilac: #a78bfa;
+  --color-lilac-soft: #efe9ff;
+  --color-cream: #fffbf2;
+  --color-ink: #1a1a2e;
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Nunito", system-ui, sans-serif;
+  --shadow-brut: 4px 4px 0 0 #1a1a2e;
+  --shadow-brut-sm: 2px 2px 0 0 #1a1a2e;
+  --shadow-brut-lg: 6px 6px 0 0 #1a1a2e;
+  --radius-card: 16px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 border-2 border-ink rounded-card shadow-brut px-4 py-2.5 font-display font-bold bg-white transition-transform cursor-pointer select-none;
+}
+.btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-brut-lg);
+}
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-brut-sm);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.chip {
+  @apply inline-flex items-center gap-1.5 border-2 border-ink rounded-full px-3 py-1 font-display font-bold text-sm bg-white shadow-brut-sm;
+}
+
+.panel {
+  @apply border-2 border-ink rounded-card bg-white shadow-brut;
+}
+
+.dotgrid {
+  background-image: radial-gradient(#1a1a2e22 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.react-flow__node {
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.react-flow__node.dragging {
+  transition: none;
+}
+.cluster-frame {
+  transition: width 520ms cubic-bezier(0.2, 0.8, 0.2, 1), height 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.react-flow__edge-path {
+  stroke: #1a1a2e;
+  stroke-width: 2;
+}
+.react-flow__edge-textbg {
+  fill: #fffbf2;
+}
+.react-flow__edge-text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+.shimmer {
+  background: linear-gradient(90deg, #ffffff 0%, #e4e9ff 50%, #ffffff 100%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

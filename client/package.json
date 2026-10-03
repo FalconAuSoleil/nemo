@@ -1,0 +1,28 @@
+{
+  "name": "@nemo/client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@nemo/shared": "*",
+    "@phosphor-icons/react": "^2.1.10",
+    "@xyflow/react": "^12.12.0",
+    "elkjs": "^0.12.0",
+    "motion": "^13.5.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tailwindcss": "^4.1.0",
+    "vite": "^8.3.2"
+  }
+}
